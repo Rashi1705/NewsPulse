@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>News Pulse — Newsroom Intelligence Dashboard</title>
+  <!-- Tailwind Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Newsreader for editorial flair, Inter for high-density intelligence data -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            serif: ['Newsreader', 'Georgia', 'serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            navy: {
+              950: '#070b14',
+              900: '#0a0f1d',
+              850: '#0d1527',
+              800: '#111b33',
+              750: '#152240',
+              700: '#1c2d54',
+              600: '#283e73',
+            },
+            source: {
+              hindu: '#1d4ed8',     /* Navy/Royal Blue badge */
+              hindubg: '#172554',
+              toi: '#dc2626',       /* Crimson/Ruby badge */
+              toibg: '#450a0a',
+              dj: '#f59e0b',        /* Saffron/Amber badge */
+              djbg: '#451a03',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0a0f1d;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+
+    /* Glassmorphism subtle utilities */
+    .glass-panel {
+      background: rgba(13, 21, 39, 0.72);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    .glass-card {
+      background: rgba(17, 27, 51, 0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .glass-card:hover {
+      background: rgba(21, 34, 64, 0.85);
+      border-color: rgba(99, 102, 241, 0.35);
+    }
+
+    /* Subtle grid line overlay for timeline */
+    .time-grid-line {
+      background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+    }
+
+    /* Pulse animation */
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.3); opacity: 0.2; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .pulse-ping {
+      animation: pulse-ring 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+  </style>
+</head>
+<body class="bg-navy-900 text-slate-100 min-h-screen font-sans flex flex-col antialiased selection:bg-cyan-500/30 selection:text-cyan-200 overflow-x-hidden">
+
+  <!-- ============================================================== -->
+  <!-- 1. TOP NAVIGATION & STATS BAR                                   -->
+  <!-- ============================================================== -->
+  <header class="border-b border-white/[0.08] glass-panel sticky top-0 z-40 px-6 py-3.5">
+    <div class="flex items-center justify-between gap-6 max-w-[1920px] mx-auto">
+      
+      <!-- Brand & Status -->
+      <div class="flex items-center gap-6">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 via-indigo-600 to-rose-500 p-0.5 shadow-lg shadow-cyan-950/50 flex items-center justify-center">
+            <div class="w-full h-full bg-navy-900 rounded-[10px] flex items-center justify-center">
+              <i class="fa-solid fa-bolt-lightning text-cyan-400 text-lg"></i>
+            </div>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-serif font-bold text-xl tracking-tight text-white flex items-center gap-1.5">
+                News <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-indigo-300 to-rose-400">Pulse</span>
+              </span>
+              <span class="px-2 py-0.5 rounded text-[10px] uppercase font-mono font-semibold tracking-wider bg-cyan-950/80 border border-cyan-500/30 text-cyan-300">
+                v2.4 Live
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 font-sans tracking-wide">Real-time Multi-source Newsroom Intelligence</p>
+          </div>
+        </div>
+
+        <div class="h-6 w-px bg-white/10 hidden md:block"></div>
+
+        <!-- Live Pulse Indicator -->
+        <div class="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-navy-950/60 border border-emerald-500/20 shadow-inner">
+          <span class="relative flex h-2.5 w-2.5">
+            <span class="pulse-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-sm shadow-emerald-400"></span>
+          </span>
+          <span class="text-xs font-mono font-medium text-emerald-400">STREAMING FEED</span>
+          <span class="text-[11px] text-slate-400 border-l border-slate-700/60 pl-2">Latency: <span class="text-slate-200 font-mono">140ms</span></span>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Overview -->
+      <div class="hidden xl:flex items-center gap-7">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 text-sm">
+            <i class="fa-solid fa-diagram-project"></i>
+          </div>
+          <div>
+            <div class="text-[11px] text-slate-400 font-medium uppercase tracking-wider">Active Clusters</div>
+            <div class="text-base font-bold font-mono text-white flex items-center gap-1.5">
+              <span>18 Topics</span>
+              <span class="text-[11px] text-emerald-400 font-normal"><i class="fa-solid fa-arrow-trend-up"></i> +4 new</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="h-7 w-px bg-white/10"></div>
+
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 text-sm">
+            <i class="fa-regular fa-newspaper"></i>
+          </div>
+          <div>
+            <div class="text-[11px] text-slate-400 font-medium uppercase tracking-wider">Total Articles</div>
+            <div class="text-base font-bold font-mono text-white flex items-center gap-1.5">
+              <span>1,248</span>
+              <span class="text-[11px] text-cyan-400 font-normal">Indexed</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="h-7 w-px bg-white/10"></div>
+
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 text-sm">
+            <i class="fa-solid fa-fire"></i>
+          </div>
+          <div>
+            <div class="text-[11px] text-slate-400 font-medium uppercase tracking-wider">Velocity Peak</div>
+            <div class="text-base font-bold font-mono text-white flex items-center gap-1.5">
+              <span>42 arts/hr</span>
+              <span class="text-[11px] text-rose-400 font-normal">Election desk</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Last Sync & Refresh Action -->
+      <div class="flex items-center gap-4">
+        <div class="text-right hidden sm:block">
+          <div class="text-[11px] text-slate-400 font-mono">LAST SYNC</div>
+          <div class="text-xs text-slate-200 font-mono font-medium flex items-center gap-1.5 justify-end" id="last-sync-display">
+            <span>Today, 14:42:08 IST</span>
+          </div>
+        </div>
+
+        <!-- Vibrant Refresh Action Button -->
+        <button id="refresh-btn" onclick="triggerRefreshAnimation()" class="relative group overflow-hidden px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-indigo-600 text-white font-medium text-xs shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/35 active:scale-95 transition-all flex items-center gap-2 font-sans border border-cyan-400/30">
+          <i id="sync-icon" class="fa-solid fa-arrows-rotate text-sm transition-transform duration-700"></i>
+          <span class="font-semibold tracking-wide">Refresh Data</span>
+          <span class="inline-flex items-center justify-center bg-white/20 text-[10px] font-mono px-1.5 py-0.2 rounded font-normal">⌘R</span>
+        </button>
+
+        <!-- Desk Mode Settings / Notification -->
+        <div class="flex items-center gap-1.5 border-l border-white/10 pl-3">
+          <button class="w-8 h-8 rounded-lg hover:bg-white/5 flex items-center justify-center text-slate-400 hover:text-white transition-colors relative" title="Alerts">
+            <i class="fa-regular fa-bell text-sm"></i>
+            <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500"></span>
+          </button>
+          <button class="w-8 h-8 rounded-lg hover:bg-white/5 flex items-center justify-center text-slate-400 hover:text-white transition-colors" title="Intelligence Desk Settings">
+            <i class="fa-solid fa-sliders text-sm"></i>
+          </button>
+          <div class="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-slate-700 ml-1 flex items-center justify-center text-xs font-bold text-white border border-white/20" title="Desk Editor">
+            ED
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================================== -->
+  <!-- 2. SOURCE FILTER BAR & DRILL-DOWN SUB-NAV                      -->
+  <!-- ============================================================== -->
+  <section class="border-b border-white/[0.06] bg-navy-950/70 px-6 py-2.5 backdrop-blur-md">
+    <div class="max-w-[1920px] mx-auto flex flex-wrap items-center justify-between gap-4">
+      
+      <!-- Source Filter Toggles -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-xs font-medium text-slate-400 uppercase tracking-wider mr-2 flex items-center gap-1.5">
+          <i class="fa-solid fa-filter text-[10px] text-slate-500"></i> Sources:
+        </span>
+
+        <!-- 'All Sources' filter button -->
+        <button onclick="setSourceFilter('all')" id="filter-all" class="source-filter-btn active-filter px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-2 bg-indigo-600/30 border border-indigo-500/50 text-white shadow-sm shadow-indigo-900/40">
+          <i class="fa-solid fa-globe text-[11px] text-indigo-300"></i>
+          <span>All Sources</span>
+          <span class="bg-indigo-950/90 text-indigo-300 text-[10px] px-1.5 py-0.5 rounded font-mono" id="count-all">1,248</span>
+        </button>
+
+        <!-- The Hindu (navy/indigo badge) -->
+        <button onclick="setSourceFilter('hindu')" id="filter-hindu" class="source-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-2 bg-navy-800/80 hover:bg-blue-950/60 border border-blue-900/60 text-slate-300 hover:text-white">
+          <span class="w-4 h-4 rounded bg-blue-900 border border-blue-700/80 flex items-center justify-center text-[9px] font-black text-blue-200">TH</span>
+          <span>The Hindu</span>
+          <span class="bg-blue-950/90 border border-blue-800/40 text-blue-300 text-[10px] px-1.5 py-0.5 rounded font-mono">482</span>
+        </button>
+
+        <!-- Times of India (crimson badge) -->
+        <button onclick="setSourceFilter('toi')" id="filter-toi" class="source-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-2 bg-navy-800/80 hover:bg-rose-950/60 border border-rose-900/60 text-slate-300 hover:text-white">
+          <span class="w-4 h-4 rounded bg-rose-900 border border-rose-600/80 flex items-center justify-center text-[9px] font-black text-rose-200">TOI</span>
+          <span>Times of India</span>
+          <span class="bg-rose-950/90 border border-rose-800/40 text-rose-300 text-[10px] px-1.5 py-0.5 rounded font-mono">512</span>
+        </button>
+
+        <!-- Dainik Jagran (amber/saffron badge) -->
+        <button onclick="setSourceFilter('dj')" id="filter-dj" class="source-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-2 bg-navy-800/80 hover:bg-amber-950/60 border border-amber-900/60 text-slate-300 hover:text-white">
+          <span class="w-4 h-4 rounded bg-amber-800 border border-amber-500/80 flex items-center justify-center text-[9px] font-black text-amber-100">DJ</span>
+          <span>Dainik Jagran</span>
+          <span class="bg-amber-950/90 border border-amber-800/40 text-amber-300 text-[10px] px-1.5 py-0.5 rounded font-mono">254</span>
+        </button>
+      </div>
+
+      <!-- Timeline Zoom & Display Filters -->
+      <div class="flex items-center gap-4 text-xs">
+        <!-- Time Window Selector -->
+        <div class="flex items-center bg-navy-900/90 p-1 rounded-lg border border-white/[0.08]">
+          <span class="text-[11px] text-slate-400 px-2 font-mono">WINDOW:</span>
+          <button class="px-2.5 py-1 rounded text-slate-400 hover:text-white transition-colors">6H</button>
+          <button class="px-2.5 py-1 rounded bg-indigo-600/40 text-indigo-200 border border-indigo-500/40 font-semibold font-mono">24H</button>
+          <button class="px-2.5 py-1 rounded text-slate-400 hover:text-white transition-colors">48H</button>
+          <button class="px-2.5 py-1 rounded text-slate-400 hover:text-white transition-colors">7D</button>
+        </div>
+
+        <!-- Search Clusters -->
+        <div class="relative w-64 hidden md:block">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
+          <input type="text" id="cluster-search" oninput="handleSearch(this.value)" placeholder="Search clusters, entities, tags..." class="w-full bg-navy-900/80 border border-white/[0.08] rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/30 transition-all">
+        </div>
+
+        <!-- Legend Key -->
+        <div class="hidden 2xl:flex items-center gap-3 text-[11px] text-slate-400 border-l border-white/10 pl-4">
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-500"></span> TH (The Hindu)</span>
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-500"></span> TOI (Times of India)</span>
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-500"></span> DJ (Dainik Jagran)</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- MAIN WORKSPACE: TIMELINE VISUALIZATION & DETAIL DRAWER          -->
+  <!-- ============================================================== -->
+  <main class="flex-1 flex overflow-hidden relative">
+
+    <!-- LEFT / CENTER: INTERACTIVE TIMELINE VISUALIZATION -->
+    <div class="flex-1 flex flex-col min-w-0 bg-navy-950/40 relative overflow-y-auto">
+      
+      <!-- Visualization Header Banner -->
+      <div class="px-8 pt-6 pb-2 flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <div class="flex items-center gap-2.5">
+            <h1 class="text-xl font-bold font-serif tracking-tight text-white flex items-center gap-2">
+              <span>Topic Evolution &amp; Coverage Timeline</span>
+              <span class="text-xs font-mono font-normal text-slate-400 bg-white/5 border border-white/10 px-2 py-0.5 rounded-full">
+                Interactive Clustering
+              </span>
+            </h1>
+          </div>
+          <p class="text-xs text-slate-400 mt-1">
+            Horizontal time-spans illustrate cluster birth, peak velocity, and multi-source convergence across news cycles.
+          </p>
+        </div>
+
+        <div class="flex items-center gap-3 text-xs">
+          <!-- Sort / Group options -->
+          <div class="flex items-center gap-1.5 text-slate-400 bg-navy-900/60 border border-white/[0.08] px-2.5 py-1.5 rounded-lg">
+            <i class="fa-solid fa-arrow-down-wide-short text-slate-500"></i>
+            <span class="text-slate-400">Order by:</span>
+            <select class="bg-transparent text-slate-200 focus:outline-none cursor-pointer font-medium">
+              <option value="velocity">Breaking Velocity</option>
+              <option value="volume">Article Volume</option>
+              <option value="divergence">Cross-Source Divergence</option>
+              <option value="recency">Most Recent Activity</option>
+            </select>
+          </div>
+
+          <!-- Play / Scrubber Simulation Button -->
+          <button onclick="toggleScrubbing()" id="scrub-toggle-btn" class="px-3 py-1.5 rounded-lg bg-navy-800 hover:bg-navy-750 text-slate-300 hover:text-white border border-white/10 flex items-center gap-2 transition-colors">
+            <i class="fa-solid fa-play text-cyan-400 text-xs" id="play-icon"></i>
+            <span class="font-mono text-xs">Replay Timeline</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- TIMELINE CONTAINER -->
+      <div class="p-8 pt-4 flex-1">
+        
+        <!-- Timeline Canvas Card -->
+        <div class="glass-panel rounded-2xl border border-white/[0.08] p-6 shadow-2xl relative overflow-hidden flex flex-col">
+          
+          <!-- TIME AXIS HEADER (Dates & Hours) -->
+          <div class="border-b border-white/[0.08] pb-3 mb-6 relative">
+            <div class="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
+              <div class="flex items-center gap-2 text-indigo-400 font-semibold tracking-wide">
+                <i class="fa-regular fa-clock"></i>
+                <span>OCTOBER 24, 2024</span>
+              </div>
+              <div class="flex items-center gap-2 text-cyan-300 font-semibold tracking-wide">
+                <span>OCTOBER 25, 2024 (TODAY)</span>
+                <span class="px-1.5 py-0.5 rounded bg-cyan-900/60 text-cyan-300 border border-cyan-500/30 text-[10px]">CURRENT TICK</span>
+              </div>
+            </div>
+
+            <!-- Hour markers grid line row -->
+            <div class="grid grid-cols-8 gap-0 text-center text-[11px] font-mono text-slate-400 border-t border-white/[0.06] pt-2 relative">
+              <div class="border-l border-white/10 pl-1 text-left">
+                <span class="text-slate-300 font-semibold">14:00</span>
+                <span class="block text-[9px] text-slate-400">Yesterday</span>
+              </div>
+              <div class="border-l border-white/10 pl-1 text-left">
+                <span class="text-slate-400">17:00</span>
+                <span class="block text-[9px] text-slate-400">Oct 24</span>
+              </div>
+              <div class="border-l border-white/10 pl-1 text-left">
+                <span class="text-slate-400">20:00</span>
+                <span class="block text-[9px] text-slate-400">Oct 24</span>
+              </div>
+              <div class="border-l border-white/10 pl-1 text-left">
+                <span class="text-slate-400">23:00</span>
+                <span class="block text-[9px] text-slate-400">Oct 24</span>
+              </div>
+              <div class="border-l border-indigo-500/30 pl-1 text-left bg-indigo-950/20">
+                <span class="text-indigo-300 font-semibold">02:00</span>
+                <span class="block text-[9px] text-indigo-400">Midnight</span>
+              </div>
+              <div class="border-l border-white/10 pl-1 text-left">
+                <span class="text-slate-400">06:00</span>
+                <span class="block text-[9px] text-slate-400">Morning Ed.</span>
+              </div>
+              <div class="border-l border-white/10 pl-1 text-left">
+                <span class="text-slate-300 font-semibold">10:00</span>
+                <span class="block text-[9px] text-slate-400">Noon cycle</span>
+              </div>
+              <div class="border-l-2 border-cyan-500 pl-1 text-left bg-cyan-950/20 relative">
+                <span class="text-cyan-300 font-bold">14:42</span>
+                <span class="block text-[9px] text-cyan-400">Now (Live)</span>
+                <!-- Red marker pulse needle -->
+                <div class="absolute -top-3.5 left-[-4px] w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_10px_#22d3ee]"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TIMELINE CLUSTER TRACKS CONTAINER -->
+          <div class="space-y-4 relative" id="clusters-container">
+            
+            <!-- Background vertical guide lines -->
+            <div class="absolute inset-0 pointer-events-none grid grid-cols-8 gap-0 z-0 opacity-40">
+              <div class="border-l border-white/[0.04]"></div>
+              <div class="border-l border-white/[0.04]"></div>
+              <div class="border-l border-white/[0.04]"></div>
+              <div class="border-l border-white/[0.04]"></div>
+              <div class="border-l border-indigo-500/[0.08] bg-indigo-500/[0.02]"></div>
+              <div class="border-l border-white/[0.04]"></div>
+              <div class="border-l border-white/[0.04]"></div>
+              <div class="border-l-2 border-cyan-500/40 bg-cyan-500/[0.03]"></div>
+            </div>
+
+            <!-- CLUSTER TRACK 1: (Active / Selected) -->
+            <!-- Spanning 18:00 Oct 24 to 14:30 Oct 25 (Col 2 to 8, ~75% width) -->
+            <div class="cluster-item relative z-10 group" data-cluster-id="cluster-1" data-sources="hindu toi dj" onclick="selectCluster('cluster-1')">
+              <div class="flex items-center justify-between text-xs mb-1.5">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-serif font-bold text-white group-hover:text-cyan-300 transition-colors flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_#38bdf8]"></span>
+                    Supreme Court Verdict on Mineral Rights &amp; State Royalty Levies
+                  </span>
+                  <span class="px-2 py-0.2 rounded text-[10px] uppercase font-mono font-medium bg-red-950/80 border border-red-500/40 text-red-300 flex items-center gap-1">
+                    <i class="fa-solid fa-bolt text-[9px]"></i> Breaking Core
+                  </span>
+                </div>
+                <div class="flex items-center gap-3 text-[11px] font-mono text-slate-400">
+                  <span>First wire: <strong class="text-slate-300">17:15 Oct 24</strong></span>
+                  <span>•</span>
+                  <span>Duration: <strong class="text-cyan-400">21h 27m</strong></span>
+                </div>
+              </div>
+
+              <!-- Bar visual wrapper -->
+              <div class="w-full bg-navy-950/80 h-14 rounded-xl p-1 border border-cyan-500/40 relative shadow-lg shadow-cyan-950/40 transition-all duration-300 group-hover:border-cyan-400">
+                <!-- Span bar with start at ~15% and width 83% -->
+                <div class="cluster-bar active-cluster-bar absolute top-1 bottom-1 left-[15%] right-[2%] rounded-lg bg-gradient-to-r from-blue-900/90 via-indigo-900/90 to-cyan-900/90 border border-cyan-400/60 p-2 flex items-center justify-between shadow-[0_0_20px_rgba(6,182,212,0.25)] cursor-pointer backdrop-blur-md">
+                  
+                  <!-- Left side: Source Icons + Mini label -->
+                  <div class="flex items-center gap-2.5 overflow-hidden">
+                    <div class="flex items-center -space-x-1.5">
+                      <span class="w-6 h-6 rounded-md bg-blue-900 border border-blue-600 flex items-center justify-center text-[10px] font-bold text-white shadow" title="The Hindu (18 articles)">TH</span>
+                      <span class="w-6 h-6 rounded-md bg-rose-900 border border-rose-600 flex items-center justify-center text-[10px] font-bold text-white shadow" title="Times of India (24 articles)">TOI</span>
+                      <span class="w-6 h-6 rounded-md bg-amber-800 border border-amber-500 flex items-center justify-center text-[10px] font-bold text-white shadow" title="Dainik Jagran (14 articles)">DJ</span>
+                    </div>
+                    <div class="truncate">
+                      <div class="text-xs font-semibold text-white tracking-wide truncate">9-Judge Constitution Bench Affirms States' Power to Tax Mines &amp; Quarries</div>
+                      <div class="text-[10px] text-cyan-200 font-mono">56 total dispatches • Consensus index: 94%</div>
+                    </div>
+                  </div>
+
+                  <!-- Right side: Count badge & indicators -->
+                  <div class="flex items-center gap-2 shrink-0 ml-3">
+                    <span class="px-2.5 py-1 rounded-md bg-cyan-950/90 border border-cyan-400/50 text-cyan-300 text-xs font-mono font-bold flex items-center gap-1.5 shadow-sm">
+                      <i class="fa-regular fa-newspaper text-[11px]"></i> 56 articles
+                    </span>
+                    <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-300 flex items-center justify-center text-xs">
+                      <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                    </span>
+                  </div>
+
+                  <!-- Timeline heat spark dots across the bar -->
+                  <div class="absolute bottom-0.5 left-20 right-32 h-1 flex justify-between px-4 opacity-70 pointer-events-none">
+                    <div class="w-1.5 h-1 bg-cyan-400 rounded-full"></div>
+                    <div class="w-2.5 h-1 bg-cyan-300 rounded-full"></div>
+                    <div class="w-4 h-1 bg-white rounded-full"></div>
+                    <div class="w-6 h-1 bg-rose-400 rounded-full"></div>
+                    <div class="w-5 h-1 bg-cyan-300 rounded-full"></div>
+                    <div class="w-8 h-1 bg-emerald-400 rounded-full animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CLUSTER TRACK 2: RBI Monetary Policy Committee & Inflation Projections -->
+            <!-- Spanning 02:00 Oct 25 to 14:00 Oct 25 (~50% width) -->
+            <div class="cluster-item relative z-10 group" data-cluster-id="cluster-2" data-sources="hindu toi" onclick="selectCluster('cluster-2')">
+              <div class="flex items-center justify-between text-xs mb-1.5">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-serif font-bold text-slate-200 group-hover:text-amber-300 transition-colors flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                    RBI Governor Briefing: Repo Rate Unchanged at 6.5%, Stance 'Neutral'
+                  </span>
+                  <span class="px-2 py-0.2 rounded text-[10px] uppercase font-mono font-medium bg-amber-950/70 border border-amber-500/30 text-amber-300">
+                    Economy &amp; Banking
+                  </span>
+                </div>
+                <div class="flex items-center gap-3 text-[11px] font-mono text-slate-400">
+                  <span>First wire: <strong class="text-slate-300">02:30 Oct 25</strong></span>
+                  <span>•</span>
+                  <span>Duration: <strong class="text-slate-300">12h 12m</strong></span>
+                </div>
+              </div>
+
+              <!-- Bar visual wrapper -->
+              <div class="w-full bg-navy-950/80 h-14 rounded-xl p-1 border border-white/[0.07] relative transition-all duration-300 group-hover:border-amber-400/50">
+                <!-- Span bar with start at ~52% and width 45% -->
+                <div class="cluster-bar absolute top-1 bottom-1 left-[52%] right-[3%] rounded-lg bg-gradient-to-r from-amber-950/80 via-yellow-950/70 to-amber-900/80 border border-amber-500/50 p-2 flex items-center justify-between cursor-pointer hover:border-amber-400 backdrop-blur-md">
+                  
+                  <div class="flex items-center gap-2.5 overflow-hidden">
+                    <div class="flex items-center -space-x-1.5">
+                      <span class="w-6 h-6 rounded-md bg-blue-900 border border-blue-600 flex items-center justify-center text-[10px] font-bold text-white shadow" title="The Hindu (16)">TH</span>
+                      <span class="w-6 h-6 rounded-md bg-rose-900 border border-rose-600 flex items-center justify-center text-[10px] font-bold text-white shadow" title="Times of India (22)">TOI</span>
+                    </div>
+                    <div class="truncate">
+                      <div class="text-xs font-semibold text-slate-100 tracking-wide truncate">Food inflation risks cited as MPC retains 7.2% GDP growth forecast</div>
+                      <div class="text-[10px] text-amber-200/80 font-mono">38 total dispatches • Consensus index: 98%</div>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-2 shrink-0 ml-3">
+                    <span class="px-2.5 py-1 rounded-md bg-amber-950/90 border border-amber-500/40 text-amber-300 text-xs font-mono font-bold flex items-center gap-1.5">
+                      <i class="fa-regular fa-newspaper text-[11px]"></i> 38 articles
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CLUSTER TRACK 3: Assembly Election Campaigns in Maharashtra & Jharkhand -->
+            <!-- Spanning 14:00 Oct 24 to 13:45 Oct 25 (col 1 to 8, ~95% width) -->
+            <div class="cluster-item relative z-10 group" data-cluster-id="cluster-3" data-sources="hindu toi dj" onclick="selectCluster('cluster-3')">
+              <div class="flex items-center justify-between text-xs mb-1.5">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-serif font-bold text-slate-200 group-hover:text-rose-300 transition-colors flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-rose-400"></span>
+                    State Elections 2024: Seat-Sharing Friction in MVA and Mahayuti Alliances
+                  </span>
+                  <span class="px-2 py-0.2 rounded text-[10px] uppercase font-mono font-medium bg-rose-950/70 border border-rose-500/30 text-rose-300">
+                    High Divergence
+                  </span>
+                </div>
+                <div class="flex items-center gap-3 text-[11px] font-mono text-slate-400">
+                  <span>First wire: <strong class="text-slate-300">14:00 Oct 24</strong></span>
+                  <span>•</span>
+                  <span>Duration: <strong class="text-slate-300">24h 42m</strong></span>
+                </div>
+              </div>
+
+              <!-- Bar visual wrapper -->
+              <div class="w-full bg-navy-950/80 h-14 rounded-xl p-1 border border-white/[0.07] relative transition-all duration-300 group-hover:border-rose-400/50">
+                <!-- Span bar with start at ~2% and width 92% -->
+                <div class="cluster-bar absolute top-1 bottom-1 left-[2%] right-[6%] rounded-lg bg-gradient-to-r from-rose-950/80 via-purple-950/70 to-red-900/80 border border-rose-500/50 p-2 flex items-center justify-between cursor-pointer hover:border-rose-400 backdrop-blur-md">
+                  
+                  <div class="flex items-center gap-2.5 overflow-hidden">
+                    <div class="flex items-center -space-x-1.5">
+                      <span class="w-6 h-6 rounded-md bg-blue-900 border border-blue-600 flex items-center justify-center text-[10px] font-bold text-white shadow">TH</span>
+                      <span class="w-6 h-6 rounded-md bg-rose-900 border border-rose-600 flex items-center justify-center text-[10px] font-bold text-white shadow">TOI</span>
+                      <span class="w-6 h-6 rounded-md bg-amber-800 border border-amber-500 flex items-center justify-center text-[10px] font-bold text-white shadow">DJ</span>
+                    </div>
+                    <div class="truncate">
+                      <div class="text-xs font-semibold text-slate-100 tracking-wide truncate">Filing of nominations surges; rebel candidates trigger last-hour consensus talks</div>
+                      <div class="text-[10px] text-rose-200/80 font-mono">72 total dispatches • Source framing divergence: High (42%)</div>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-2 shrink-0 ml-3">
+                    <span class="px-2.5 py-1 rounded-md bg-rose-950/90 border border-rose-500/40 text-rose-300 text-xs font-mono font-bold flex items-center gap-1.5">
+                      <i class="fa-regular fa-newspaper text-[11px]"></i> 72 articles
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CLUSTER TRACK 4: Cyclone 'Dana' Landfall & Coastal Evacuations -->
+            <!-- Spanning 20:00 Oct 24 to 11:00 Oct 25 (~45% width) -->
+            <div class="cluster-item relative z-10 group" data-cluster-id="cluster-4" data-sources="hindu dj" onclick="selectCluster('cluster-4')">
+              <div class="flex items-center justify-between text-xs mb-1.5">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-serif font-bold text-slate-200 group-hover:text-emerald-300 transition-colors flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    Severe Cyclonic Storm 'Dana' Crosses Odisha &amp; West Bengal Coasts
+                  </span>
+                  <span class="px-2 py-0.2 rounded text-[10px] uppercase font-mono font-medium bg-emerald-950/70 border border-emerald-500/30 text-emerald-300">
+                    Disaster / IMD
+                  </span>
+                </div>
+                <div class="flex items-center gap-3 text-[11px] font-mono text-slate-400">
+                  <span>First wire: <strong class="text-slate-300">20:10 Oct 24</strong></span>
+                  <span>•</span>
+                  <span>Duration: <strong class="text-slate-300">15h 10m</strong></span>
+                </div>
+              </div>
+
+              <!-- Bar visual wrapper -->
+              <div class="w-full bg-navy-950/80 h-14 rounded-xl p-1 border border-white/[0.07] relative transition-all duration-300 group-hover:border-emerald-400/50">
+                <!-- Span bar with start at ~28% and width 48% -->
+                <div class="cluster-bar absolute top-1 bottom-1 left-[28%] right-[24%] rounded-lg bg-gradient-to-r from-emerald-950/80 via-teal-950/70 to-cyan-950/80 border border-emerald-500/50 p-2 flex items-center justify-between cursor-pointer hover:border-emerald-400 backdrop-blur-md">
+                  
+                  <div class="flex items-center gap-2.5 overflow-hidden">
+                    <div class="flex items-center -space-x-1.5">
+                      <span class="w-6 h-6 rounded-md bg-blue-900 border border-blue-600 flex items-center justify-center text-[10px] font-bold text-white shadow">TH</span>
+                      <span class="w-6 h-6 rounded-md bg-amber-800 border border-amber-500 flex items-center justify-center text-[10px] font-bold text-white shadow">DJ</span>
+                    </div>
+                    <div class="truncate">
+                      <div class="text-xs font-semibold text-slate-100 tracking-wide truncate">Wind speeds of 110 kmph recorded in Dhamra; over 600,000 evacuated safely</div>
+                      <div class="text-[10px] text-emerald-200/80 font-mono">41 total dispatches • IMD alerts synced</div>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-2 shrink-0 ml-3">
+                    <span class="px-2.5 py-1 rounded-md bg-emerald-950/90 border border-emerald-500/40 text-emerald-300 text-xs font-mono font-bold flex items-center gap-1.5">
+                      <i class="fa-regular fa-newspaper text-[11px]"></i> 41 articles
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CLUSTER TRACK 5: ISRO Gaganyaan Test Vehicle Mission Milestones -->
+            <!-- Spanning 06:00 Oct 25 to 14:20 Oct 25 (~38% width) -->
+            <div class="cluster-item relative z-10 group" data-cluster-id="cluster-5" data-sources="toi dj" onclick="selectCluster('cluster-5')">
+              <div class="flex items-center justify-between text-xs mb-1.5">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-serif font-bold text-slate-200 group-hover:text-purple-300 transition-colors flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-purple-400"></span>
+                    ISRO Completes Cryogenic Stage Vibration Qualification for Human Flight
+                  </span>
+                  <span class="px-2 py-0.2 rounded text-[10px] uppercase font-mono font-medium bg-purple-950/70 border border-purple-500/30 text-purple-300">
+                    Science &amp; Aero
+                  </span>
+                </div>
+                <div class="flex items-center gap-3 text-[11px] font-mono text-slate-400">
+                  <span>First wire: <strong class="text-slate-300">06:45 Oct 25</strong></span>
+                  <span>•</span>
+                  <span>Duration: <strong class="text-slate-300">7h 55m</strong></span>
+                </div>
+              </div>
+
+              <!-- Bar visual wrapper -->
+              <div class="w-full bg-navy-950/80 h-14 rounded-xl p-1 border border-white/[0.07] relative transition-all duration-300 group-hover:border-purple-400/50">
+                <!-- Span bar with start at ~62% and width 36% -->
+                <div class="cluster-bar absolute top-1 bottom-1 left-[62%] right-[2%] rounded-lg bg-gradient-to-r from-purple-950/80 via-indigo-950/70 to-slate-900/80 border border-purple-500/50 p-2 flex items-center justify-between cursor-pointer hover:border-purple-400 backdrop-blur-md">
+                  
+                  <div class="flex items-center gap-2.5 overflow-hidden">
+                    <div class="flex items-center -space-x-1.5">
+                      <span class="w-6 h-6 rounded-md bg-rose-900 border border-rose-600 flex items-center justify-center text-[10px] font-bold text-white shadow">TOI</span>
+                      <span class="w-6 h-6 rounded-md bg-amber-800 border border-amber-500 flex items-center justify-center text-[10px] font-bold text-white shadow">DJ</span>
+                    </div>
+                    <div class="truncate">
+                      <div class="text-xs font-semibold text-slate-100 tracking-wide truncate">CE20 cryogenic rocket engine clears rugged endurance test at Mahendragiri</div>
+                      <div class="text-[10px] text-purple-200/80 font-mono">19 total dispatches • High tech fidelity</div>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-2 shrink-0 ml-3">
+                    <span class="px-2.5 py-1 rounded-md bg-purple-950/90 border border-purple-500/40 text-purple-300 text-xs font-mono font-bold flex items-center gap-1.5">
+                      <i class="fa-regular fa-newspaper text-[11px]"></i> 19 articles
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Timeline Scrubber Info Footer -->
+          <div class="mt-6 pt-4 border-t border-white/[0.06] flex items-center justify-between text-xs text-slate-400">
+            <div class="flex items-center gap-3">
+              <span class="flex items-center gap-1.5 text-slate-300 font-mono">
+                <i class="fa-solid fa-layer-group text-cyan-400"></i> Showing 5 of 18 active clusters
+              </span>
+              <span class="text-slate-600">|</span>
+              <span class="text-slate-400">Click any cluster bar to inspect cross-source narrative divergence.</span>
+            </div>
+            <div class="flex items-center gap-2 font-mono text-[11px]">
+              <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+              <span>Timeline resolution: 15-minute sampling buckets</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Real-time Multi-source Ingestion Pulse Feed Strip -->
+        <div class="mt-5 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Ingestion Source 1 -->
+          <div class="glass-card rounded-xl p-3.5 flex items-center justify-between border-l-4 border-l-blue-600">
+            <div class="flex items-center gap-3">
+              <span class="w-7 h-7 rounded bg-blue-900 border border-blue-600 flex items-center justify-center text-xs font-bold text-white">TH</span>
+              <div>
+                <div class="text-xs font-semibold text-white">The Hindu RSS &amp; Wire</div>
+                <div class="text-[10px] text-slate-400 font-mono">Last payload: 45s ago (National)</div>
+              </div>
+            </div>
+            <span class="text-xs font-mono text-emerald-400 font-medium">99.8% OK</span>
+          </div>
+
+          <!-- Ingestion Source 2 -->
+          <div class="glass-card rounded-xl p-3.5 flex items-center justify-between border-l-4 border-l-rose-600">
+            <div class="flex items-center gap-3">
+              <span class="w-7 h-7 rounded bg-rose-900 border border-rose-600 flex items-center justify-center text-xs font-bold text-white">TOI</span>
+              <div>
+                <div class="text-xs font-semibold text-white">Times of India Newsfeed</div>
+                <div class="text-[10px] text-slate-400 font-mono">Last payload: 12s ago (Politics)</div>
+              </div>
+            </div>
+            <span class="text-xs font-mono text-emerald-400 font-medium">100% OK</span>
+          </div>
+
+          <!-- Ingestion Source 3 -->
+          <div class="glass-card rounded-xl p-3.5 flex items-center justify-between border-l-4 border-l-amber-600">
+            <div class="flex items-center gap-3">
+              <span class="w-7 h-7 rounded bg-amber-800 border border-amber-500 flex items-center justify-center text-xs font-bold text-amber-100">DJ</span>
+              <div>
+                <div class="text-xs font-semibold text-white">Dainik Jagran Regional</div>
+                <div class="text-[10px] text-slate-400 font-mono">Last payload: 2m ago (State Bureau)</div>
+              </div>
+            </div>
+            <span class="text-xs font-mono text-emerald-400 font-medium">99.4% OK</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- 4. CLUSTER DETAIL DRAWER / SIDE PANEL (ACTIVE SELECTED CLUSTER) -->
+    <!-- ============================================================== -->
+    <aside class="w-[460px] 2xl:w-[500px] border-l border-white/[0.08] glass-panel flex flex-col shrink-0 z-30 shadow-2xl relative" id="cluster-drawer">
+      
+      <!-- Drawer Header -->
+      <div class="p-5 border-b border-white/[0.08] bg-navy-950/80">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 rounded text-[11px] font-mono uppercase font-semibold bg-cyan-950 border border-cyan-500/40 text-cyan-300">
+              CLUSTER #NP-8842
+            </span>
+            <span class="text-xs font-mono text-slate-400">ID: 0x9f4a</span>
+          </div>
+          
+          <div class="flex items-center gap-1.5">
+            <button class="w-7 h-7 rounded-lg hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors" title="Export Brief">
+              <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+            </button>
+            <button class="w-7 h-7 rounded-lg hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors" title="Bookmark Cluster">
+              <i class="fa-regular fa-bookmark text-xs"></i>
+            </button>
+            <button onclick="toggleDrawerCollapse()" class="w-7 h-7 rounded-lg hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors" title="Minimize Drawer">
+              <i class="fa-solid fa-chevron-right text-xs" id="collapse-icon"></i>
+            </button>
+          </div>
+        </div>
+
+        <h2 class="text-lg font-serif font-bold text-white leading-snug" id="drawer-headline">
+          Supreme Court Verdict on Mineral Rights &amp; State Royalty Levies
+        </h2>
+
+        <!-- Cluster Meta Stats Badges -->
+        <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-white/[0.06] text-center">
+          <div class="bg-navy-900/80 rounded-lg p-2 border border-white/[0.05]">
+            <div class="text-[10px] text-slate-400 uppercase font-mono">Articles</div>
+            <div class="text-sm font-bold font-mono text-cyan-300" id="drawer-article-count">56</div>
+          </div>
+          <div class="bg-navy-900/80 rounded-lg p-2 border border-white/[0.05]">
+            <div class="text-[10px] text-slate-400 uppercase font-mono">Velocity</div>
+            <div class="text-sm font-bold font-mono text-emerald-400">8.4 / hr</div>
+          </div>
+          <div class="bg-navy-900/80 rounded-lg p-2 border border-white/[0.05]">
+            <div class="text-[10px] text-slate-400 uppercase font-mono">Sentiment</div>
+            <div class="text-sm font-bold font-mono text-indigo-300">Neutral/Fiscal</div>
+          </div>
+        </div>
+
+        <!-- Multi-source coverage break-down pills -->
+        <div class="mt-3 flex items-center justify-between text-xs">
+          <span class="text-slate-400 text-[11px] font-mono">Sources Coverage:</span>
+          <div class="flex items-center gap-1.5 font-mono text-[11px]">
+            <span class="px-2 py-0.5 rounded bg-blue-950/80 text-blue-300 border border-blue-800/40">TH: 18</span>
+            <span class="px-2 py-0.5 rounded bg-rose-950/80 text-rose-300 border border-rose-800/40">TOI: 24</span>
+            <span class="px-2 py-0.5 rounded bg-amber-950/80 text-amber-300 border border-amber-800/40">DJ: 14</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chronological Feed Controls & Tabs -->
+      <div class="px-5 py-2.5 bg-navy-900/60 border-b border-white/[0.06] flex items-center justify-between text-xs">
+        <div class="flex items-center gap-1">
+          <button class="px-2.5 py-1 rounded-md bg-white/10 text-white font-medium text-[11px]">Chronological (Newest)</button>
+          <button class="px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition-colors text-[11px]">Key Quotes</button>
+          <button class="px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition-colors text-[11px]">Divergence</button>
+        </div>
+        <span class="text-[11px] font-mono text-slate-400 flex items-center gap-1">
+          <i class="fa-solid fa-arrow-down-short-wide text-[10px]"></i> Live Order
+        </span>
+      </div>
+
+      <!-- ARTICLES CHRONOLOGICAL FEED (SCROLLABLE) -->
+      <div class="flex-1 overflow-y-auto p-5 space-y-4" id="drawer-articles-feed">
+        
+        <!-- ARTICLE ITEM 1 (The Hindu - Most Recent) -->
+        <div class="glass-card rounded-xl p-4 border border-white/[0.06] hover:border-blue-500/40 transition-all group">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold font-sans bg-blue-900 text-blue-200 border border-blue-700">
+                THE HINDU
+              </span>
+              <span class="text-[11px] font-mono text-slate-400">National Legal Bureau</span>
+            </div>
+            <span class="text-[11px] font-mono text-cyan-300 flex items-center gap-1">
+              <i class="fa-regular fa-clock text-[10px]"></i> 14:15 IST (27m ago)
+            </span>
+          </div>
+
+          <h3 class="text-sm font-serif font-bold text-slate-100 group-hover:text-blue-300 transition-colors leading-snug">
+            States Free to Levy Tax on Mineral Bearing Land: 8:1 Constitution Majority Asserts Federal Fiscal Autonomy
+          </h3>
+
+          <p class="text-xs text-slate-300 font-sans mt-2 line-clamp-3 leading-relaxed">
+            NEW DELHI — In an epochal federalism judgment, the 9-judge Constitution Bench headed by CJI D.Y. Chandrachud ruled that royalty paid to states is not a tax under Entry 50 of List II, allowing mineral-rich states like Jharkhand and Odisha to levy retroactive or prospectively adjusted taxes on mining extraction.
+          </p>
+
+          <div class="mt-3 pt-3 border-t border-white/[0.05] flex items-center justify-between">
+            <div class="flex items-center gap-2 text-[10px] text-slate-400 font-mono">
+              <span class="text-slate-400">Tags: #ConstitutionBench #Federalism #MiningRoyalty</span>
+            </div>
+            <a href="#original-wire" class="text-xs font-medium text-cyan-400 hover:text-cyan-300 flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+              <span>Read Original</span>
+              <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- ARTICLE ITEM 2 (Times of India) -->
+        <div class="glass-card rounded-xl p-4 border border-white/[0.06] hover:border-rose-500/40 transition-all group">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold font-sans bg-rose-900 text-rose-200 border border-rose-700">
+                TIMES OF INDIA
+              </span>
+              <span class="text-[11px] font-mono text-slate-400">Business &amp; Policy</span>
+            </div>
+            <span class="text-[11px] font-mono text-slate-400 flex items-center gap-1">
+              <i class="fa-regular fa-clock text-[10px]"></i> 12:40 IST (2h ago)
+            </span>
+          </div>
+
+          <h3 class="text-sm font-serif font-bold text-slate-100 group-hover:text-rose-300 transition-colors leading-snug">
+            Mining Stocks Tumble as Apex Court Permits State Levies; Tata Steel, Coal India In Focus
+          </h3>
+
+          <p class="text-xs text-slate-300 font-sans mt-2 line-clamp-3 leading-relaxed">
+            MUMBAI — Metal and mining scrips witnessed heavy selloffs on Dalal Street after the Supreme Court declared royalties distinct from taxes. Analysts caution retroactive state cess could impact balance sheets by over ₹25,000 crore across public and private miners.
+          </p>
+
+          <div class="mt-3 pt-3 border-t border-white/[0.05] flex items-center justify-between">
+            <div class="flex items-center gap-2 text-[10px] text-slate-400 font-mono">
+              <span class="text-slate-400">Tags: #Markets #Sensex #MiningShares</span>
+            </div>
+            <a href="#original-wire" class="text-xs font-medium text-rose-400 hover:text-rose-300 flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+              <span>Read Original</span>
+              <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- ARTICLE ITEM 3 (Dainik Jagran - Hindi/State Angle) -->
+        <div class="glass-card rounded-xl p-4 border border-white/[0.06] hover:border-amber-500/40 transition-all group">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold font-sans bg-amber-800 text-amber-100 border border-amber-600">
+                DAINIK JAGRAN
+              </span>
+              <span class="text-[11px] font-mono text-slate-400">Ranchi Bureau</span>
+            </div>
+            <span class="text-[11px] font-mono text-slate-400 flex items-center gap-1">
+              <i class="fa-regular fa-clock text-[10px]"></i> 09:20 IST (5h ago)
+            </span>
+          </div>
+
+          <h3 class="text-sm font-serif font-bold text-slate-100 group-hover:text-amber-300 transition-colors leading-snug">
+            झारखंड के खजाने में होगी भारी बढ़ोतरी, सुप्रीम कोर्ट के ऐतिहासिक फैसले का मुख्यमंत्री सोरेन ने किया स्वागत
+          </h3>
+
+          <p class="text-xs text-slate-300 font-sans mt-2 line-clamp-3 leading-relaxed">
+            रांची — सुप्रीम कोर्ट के 9 जजों की संविधान पीठ द्वारा खनिजों पर राज्य सरकारों को उपकर लगाने का अधिकार दिए जाने के बाद झारखंड में सियासी और आर्थिक सरगर्मी तेज। राज्य सरकार ने कहा कि यह फैसला आदिवासियों और खनिज समृद्ध राज्यों के अधिकारों की जीत है।
+          </p>
+
+          <div class="mt-3 pt-3 border-t border-white/[0.05] flex items-center justify-between">
+            <div class="flex items-center gap-2 text-[10px] text-slate-400 font-mono">
+              <span class="text-slate-400">Tags: #Jharkhand #MiningCess #StateRevenue</span>
+            </div>
+            <a href="#original-wire" class="text-xs font-medium text-amber-400 hover:text-amber-300 flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+              <span>Read Original</span>
+              <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- ARTICLE ITEM 4 (The Hindu - Earlier Wire) -->
+        <div class="glass-card rounded-xl p-4 border border-white/[0.06] hover:border-blue-500/40 transition-all group">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold font-sans bg-blue-900 text-blue-200 border border-blue-700">
+                THE HINDU
+              </span>
+              <span class="text-[11px] font-mono text-slate-400">Legal Dispatch</span>
+            </div>
+            <span class="text-[11px] font-mono text-slate-400 flex items-center gap-1">
+              <i class="fa-regular fa-clock text-[10px]"></i> 18:30 IST Oct 24
+            </span>
+          </div>
+
+          <h3 class="text-sm font-serif font-bold text-slate-100 group-hover:text-blue-300 transition-colors leading-snug">
+            Justice Nagarathna's Dissent: Warning Against Inter-State Economic Balkanisation
+          </h3>
+
+          <p class="text-xs text-slate-300 font-sans mt-2 line-clamp-3 leading-relaxed">
+            Justice B.V. Nagarathna delivered the sole dissenting voice, expressing concern that unbridled state levies on raw mineral ores could unleash stiff inter-state competition, uneven industrial production costs, and potential economic fragmentation.
+          </p>
+
+          <div class="mt-3 pt-3 border-t border-white/[0.05] flex items-center justify-between">
+            <div class="flex items-center gap-2 text-[10px] text-slate-400 font-mono">
+              <span class="text-slate-400">Tags: #Dissent #LegalOpinion #SupremeCourt</span>
+            </div>
+            <a href="#original-wire" class="text-xs font-medium text-cyan-400 hover:text-cyan-300 flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+              <span>Read Original</span>
+              <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Drawer Action Bottom Dock -->
+      <div class="p-4 border-t border-white/[0.08] bg-navy-950 flex items-center justify-between gap-3">
+        <button class="flex-1 py-2 px-3 rounded-lg bg-navy-800 hover:bg-navy-750 text-slate-200 text-xs font-medium border border-white/10 flex items-center justify-center gap-2 transition-colors">
+          <i class="fa-solid fa-chart-line text-indigo-400"></i>
+          <span>View Source Delta Analysis</span>
+        </button>
+        <button class="py-2 px-3 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 text-xs font-semibold border border-cyan-500/30 flex items-center gap-1.5 transition-colors">
+          <i class="fa-solid fa-share-nodes"></i>
+          <span>Synthesize AI Brief</span>
+        </button>
+      </div>
+
+    </aside>
+
+  </main>
+
+  <!-- ============================================================== -->
+  <!-- CLIENT SCRIPTING (INTERACTIVE TIMELINE, FILTERS, DATA REFRESH) -->
+  <!-- ============================================================== -->
+  <script>
+    // Cluster database for dynamic drawer rendering
+    const clusterData = {
+      'cluster-1': {
+        title: "Supreme Court Verdict on Mineral Rights & State Royalty Levies",
+        count: 56,
+        velocity: "8.4 / hr",
+        sources: { hindu: 18, toi: 24, dj: 14 },
+        articles: [
+          {
+            source: "THE HINDU",
+            sourceClass: "bg-blue-900 text-blue-200 border-blue-700",
+            sourceColor: "blue",
+            desk: "National Legal Bureau",
+            time: "14:15 IST (27m ago)",
+            title: "States Free to Levy Tax on Mineral Bearing Land: 8:1 Constitution Majority Asserts Federal Fiscal Autonomy",
+            excerpt: "NEW DELHI — In an epochal federalism judgment, the 9-judge Constitution Bench headed by CJI D.Y. Chandrachud ruled that royalty paid to states is not a tax under Entry 50 of List II, allowing mineral-rich states like Jharkhand and Odisha to levy retroactive or prospectively adjusted taxes.",
+            tags: "#ConstitutionBench #Federalism #MiningRoyalty"
+          },
+          {
+            source: "TIMES OF INDIA",
+            sourceClass: "bg-rose-900 text-rose-200 border-rose-700",
+            sourceColor: "rose",
+            desk: "Business & Policy",
+            time: "12:40 IST (2h ago)",
+            title: "Mining Stocks Tumble as Apex Court Permits State Levies; Tata Steel, Coal India In Focus",
+            excerpt: "MUMBAI — Metal and mining scrips witnessed heavy selloffs on Dalal Street after the Supreme Court declared royalties distinct from taxes. Analysts caution retroactive state cess could impact balance sheets by over ₹25,000 crore.",
+            tags: "#Markets #Sensex #MiningShares"
+          },
+          {
+            source: "DAINIK JAGRAN",
+            sourceClass: "bg-amber-800 text-amber-100 border-amber-600",
+            sourceColor: "amber",
+            desk: "Ranchi Bureau",
+            time: "09:20 IST (5h ago)",
+            title: "झारखंड के खजाने में होगी भारी बढ़ोतरी, सुप्रीम कोर्ट के ऐतिहासिक फैसले का मुख्यमंत्री सोरेन ने किया स्वागत",
+            excerpt: "रांची — सुप्रीम कोर्ट के 9 जजों की संविधान पीठ द्वारा खनिजों पर राज्य सरकारों को उपकर लगाने का अधिकार दिए जाने के बाद झारखंड में सियासी और आर्थिक सरगर्मी तेज। राज्य सरकार ने कहा कि यह फैसला आदिवासियों के अधिकारों की जीत है।",
+            tags: "#Jharkhand #MiningCess #StateRevenue"
+          }
+        ]
+      },
+      'cluster-2': {
+        title: "RBI Governor Briefing: Repo Rate Unchanged at 6.5%, Stance 'Neutral'",
+        count: 38,
+        velocity: "6.1 / hr",
+        sources: { hindu: 16, toi: 22, dj: 0 },
+        articles: [
+          {
+            source: "TIMES OF INDIA",
+            sourceClass: "bg-rose-900 text-rose-200 border-rose-700",
+            sourceColor: "rose",
+            desk: "Banking Desk",
+            time: "13:30 IST (1h ago)",
+            title: "RBI Keeps Repo Rate Flat at 6.5% for 10th Consecutive Meeting",
+            excerpt: "MUMBAI — Highlighting persistent food price volatility, the Monetary Policy Committee unanimously maintained the benchmark lending rate, pivoting monetary stance to 'neutral' to preserve policy agility.",
+            tags: "#RBI #RepoRate #Inflation"
+          },
+          {
+            source: "THE HINDU",
+            sourceClass: "bg-blue-900 text-blue-200 border-blue-700",
+            sourceColor: "blue",
+            desk: "Financial Bureau",
+            time: "11:15 IST (3h ago)",
+            title: "Shaktikanta Das Cites Geopolitical Headwinds, Keeps CPI Target at 4.5%",
+            excerpt: "NEW DELHI — While growth projections remain robust at 7.2%, the Reserve Bank flagged crude uncertainty and core price stickiness before considering interest rate cuts.",
+            tags: "#Economy #CentralBank #GDP"
+          }
+        ]
+      },
+      'cluster-3': {
+        title: "State Elections 2024: Seat-Sharing Friction in MVA and Mahayuti Alliances",
+        count: 72,
+        velocity: "14.2 / hr",
+        sources: { hindu: 20, toi: 32, dj: 20 },
+        articles: [
+          {
+            source: "DAINIK JAGRAN",
+            sourceClass: "bg-amber-800 text-amber-100 border-amber-600",
+            sourceColor: "amber",
+            desk: "Mumbai Election Cell",
+            time: "13:55 IST (45m ago)",
+            title: "महायुति और महाविकास आघाड़ी में सीटों का पेंच सुलझाने के लिए दिल्ली से मुंबई तक बैठकों का दौर जारी",
+            excerpt: "मुंबई — नामांकन की अंतिम तारीख नजदीक आते ही विदर्भ और पश्चिमी महाराष्ट्र की 28 सीटों पर दोनों प्रमुख गठबंधनों के बीच खींचतान चरम पर पहुंची।",
+            tags: "#MaharashtraElections #MVA #Mahayuti"
+          },
+          {
+            source: "TIMES OF INDIA",
+            sourceClass: "bg-rose-900 text-rose-200 border-rose-700",
+            sourceColor: "rose",
+            desk: "Political Bureau",
+            time: "12:10 IST (2h ago)",
+            title: "Congress, Shiv Sena (UBT) Reach Breakthrough On Key Vidarbha Constituencies",
+            excerpt: "MUMBAI — Senior leadership convened through midnight sessions to finalize candidate declarations after days of public disagreement over specific assembly segments.",
+            tags: "#Politics #Elections2024 #SeatSharing"
+          }
+        ]
+      },
+      'cluster-4': {
+        title: "Severe Cyclonic Storm 'Dana' Crosses Odisha & West Bengal Coasts",
+        count: 41,
+        velocity: "5.5 / hr",
+        sources: { hindu: 22, toi: 0, dj: 19 },
+        articles: [
+          {
+            source: "THE HINDU",
+            sourceClass: "bg-blue-900 text-blue-200 border-blue-700",
+            sourceColor: "blue",
+            desk: "Bhubaneswar Bureau",
+            time: "10:45 IST (4h ago)",
+            title: "Cyclone Dana Landfall Process Complete; Minimal Casualties Reported",
+            excerpt: "BHUBANESWAR — Extensive disaster management preparedness and evacuation of 600,000 residents across Kendrapara and Bhadrak ensured zero reported casualties during coastal landfall.",
+            tags: "#CycloneDana #Odisha #DisasterManagement"
+          }
+        ]
+      },
+      'cluster-5': {
+        title: "ISRO Completes Cryogenic Stage Vibration Qualification for Human Flight",
+        count: 19,
+        velocity: "3.2 / hr",
+        sources: { hindu: 0, toi: 12, dj: 7 },
+        articles: [
+          {
+            source: "TIMES OF INDIA",
+            sourceClass: "bg-rose-900 text-rose-200 border-rose-700",
+            sourceColor: "rose",
+            desk: "Space Science",
+            time: "08:15 IST (6h ago)",
+            title: "Gaganyaan Milestone: Cryogenic CE20 Qualified for Manned Missions",
+            excerpt: "BENGALURU — ISRO announced successful ground hot tests simulating dynamic flight loads, clearing a vital benchmark ahead of uncrewed orbital tests.",
+            tags: "#ISRO #Gaganyaan #SpaceTech"
+          }
+        ]
+      }
+    };
+
+    // Filter toggles
+    function setSourceFilter(source) {
+      // Update UI button active states
+      document.querySelectorAll('.source-filter-btn').forEach(btn => {
+        btn.classList.remove('bg-indigo-600/30', 'border-indigo-500/50', 'text-white', 'shadow-sm');
+        btn.classList.add('text-slate-300');
+      });
+
+      const activeBtn = document.getElementById('filter-' + source);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-indigo-600/30', 'border-indigo-500/50', 'text-white', 'shadow-sm');
+        activeBtn.classList.remove('text-slate-300');
+      }
+
+      // Filter cluster items on timeline
+      const clusters = document.querySelectorAll('.cluster-item');
+      clusters.forEach(item => {
+        const itemSources = item.getAttribute('data-sources') || '';
+        if (source === 'all' || itemSources.includes(source)) {
+          item.style.display = 'block';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+
+    // Cluster Selection & Drawer Update
+    function selectCluster(clusterId) {
+      const data = clusterData[clusterId];
+      if (!data) return;
+
+      // Update active highlight on timeline bars
+      document.querySelectorAll('.cluster-bar').forEach(b => {
+        b.classList.remove('border-cyan-400/80', 'shadow-[0_0_20px_rgba(6,182,212,0.25)]');
+      });
+      const selectedItem = document.querySelector(`[data-cluster-id="${clusterId}"] .cluster-bar`);
+      if (selectedItem) {
+        selectedItem.classList.add('border-cyan-400/80', 'shadow-[0_0_20px_rgba(6,182,212,0.25)]');
+      }
+
+      // Populate Drawer Header
+      document.getElementById('drawer-headline').innerText = data.title;
+      document.getElementById('drawer-article-count').innerText = data.count;
+
+      // Populate Chronological Feed
+      const feedContainer = document.getElementById('drawer-articles-feed');
+      feedContainer.innerHTML = '';
+
+      data.articles.forEach(art => {
+        const artEl = document.createElement('div');
+        artEl.className = `glass-card rounded-xl p-4 border border-white/[0.06] hover:border-${art.sourceColor}-500/40 transition-all group`;
+        artEl.innerHTML = `
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold font-sans ${art.sourceClass}">
+                ${art.source}
+              </span>
+              <span class="text-[11px] font-mono text-slate-400">${art.desk}</span>
+            </div>
+            <span class="text-[11px] font-mono text-cyan-300 flex items-center gap-1">
+              <i class="fa-regular fa-clock text-[10px]"></i> ${art.time}
+            </span>
+          </div>
+          <h3 class="text-sm font-serif font-bold text-slate-100 group-hover:text-${art.sourceColor}-300 transition-colors leading-snug">
+            ${art.title}
+          </h3>
+          <p class="text-xs text-slate-300 font-sans mt-2 line-clamp-3 leading-relaxed">
+            ${art.excerpt}
+          </p>
+          <div class="mt-3 pt-3 border-t border-white/[0.05] flex items-center justify-between">
+            <span class="text-[10px] text-slate-400 font-mono">${art.tags}</span>
+            <a href="#original-wire" class="text-xs font-medium text-cyan-400 hover:text-cyan-300 flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+              <span>Read Original</span>
+              <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+            </a>
+          </div>
+        `;
+        feedContainer.appendChild(artEl);
+      });
+    }
+
+    // Refresh Data action
+    function triggerRefreshAnimation() {
+      const icon = document.getElementById('sync-icon');
+      const timeDisplay = document.getElementById('last-sync-display');
+      icon.classList.add('rotate-[720deg]');
+      
+      const now = new Date();
+      const timeStr = `Today, ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')} IST`;
+      
+      setTimeout(() => {
+        icon.classList.remove('rotate-[720deg]');
+        timeDisplay.innerHTML = `<span class="text-emerald-400">Synced just now</span>`;
+        setTimeout(() => {
+          timeDisplay.innerHTML = `<span>${timeStr}</span>`;
+        }, 2500);
+      }, 700);
+    }
+
+    // Drawer collapse / expand
+    let isCollapsed = false;
+    function toggleDrawerCollapse() {
+      const drawer = document.getElementById('cluster-drawer');
+      const icon = document.getElementById('collapse-icon');
+      isCollapsed = !isCollapsed;
+      if (isCollapsed) {
+        drawer.style.width = '70px';
+        drawer.querySelectorAll('h2, .grid, .space-y-4, p, #drawer-articles-feed, div[class*="mt-4"]').forEach(el => el.classList.add('hidden'));
+        icon.classList.replace('fa-chevron-right', 'fa-chevron-left');
+      } else {
+        drawer.style.width = '';
+        drawer.querySelectorAll('.hidden').forEach(el => el.classList.remove('hidden'));
+        icon.classList.replace('fa-chevron-left', 'fa-chevron-right');
+      }
+    }
+
+    // Search filter for clusters
+    function handleSearch(query) {
+      const term = query.toLowerCase();
+      document.querySelectorAll('.cluster-item').forEach(item => {
+        const text = item.innerText.toLowerCase();
+        item.style.display = text.includes(term) ? 'block' : 'none';
+      });
+    }
+
+    // Timeline scrubber simulation
+    let isScrubbing = false;
+    let scrubInterval = null;
+    function toggleScrubbing() {
+      const btn = document.getElementById('scrub-toggle-btn');
+      const icon = document.getElementById('play-icon');
+      isScrubbing = !isScrubbing;
+
+      if (isScrubbing) {
+        icon.classList.replace('fa-play', 'fa-pause');
+        btn.classList.add('bg-cyan-950', 'border-cyan-400/50', 'text-cyan-300');
+        // Simple subtle pulse effect across cluster bars
+        let counter = 0;
+        scrubInterval = setInterval(() => {
+          const bars = document.querySelectorAll('.cluster-bar');
+          bars.forEach((b, i) => {
+            b.style.opacity = ((i + counter) % 2 === 0) ? '0.7' : '1.0';
+          });
+          counter++;
+        }, 500);
+      } else {
+        icon.classList.replace('fa-pause', 'fa-play');
+        btn.classList.remove('bg-cyan-950', 'border-cyan-400/50', 'text-cyan-300');
+        clearInterval(scrubInterval);
+        document.querySelectorAll('.cluster-bar').forEach(b => b.style.opacity = '1.0');
+      }
+    }
+  </script>
+</body>
+</html>
