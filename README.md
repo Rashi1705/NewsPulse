@@ -1,161 +1,471 @@
-# 📰 NewsPulse — Real-Time News Aggregation & Timeline Platform
-> **Tagline:** `INDEPENDENT. ACCURATE. FAST.`
+# 📰 NewsPulse
 
-NewsPulse is a full-stack real-time news intelligence and aggregation platform that continuously ingests live RSS news feeds from India's premier publications (**The Hindu**, **The Times of India**, and **Dainik Jagran**), groups related articles into unified story topics using text similarity algorithms, and delivers a sleek, human-centric timeline web interface.
+> **INDEPENDENT. ACCURATE. FAST.**
 
----
+NewsPulse is a full-stack news aggregation platform that collects live news from **The Hindu, The Times of India, and Dainik Jagran**, groups related coverage into common story topics, and presents the results through a clean, chronological timeline.
 
-## 🌟 Key Features
-
-- **Multi-Source RSS Ingestion:** Ingests live news feeds from **The Hindu**, **Times of India**, and **Dainik Jagran** with their official logos.
-- **Automated Topic Clustering:** Uses TF-IDF vectorization and cosine similarity to detect multi-outlet coverage and group related articles under a single representative topic.
-- **Dual-View Platform:**
-  - **Public Landing Page:** Editorial showcase with live preview mockups, value propositions, and publisher coverage network.
-  - **Live Newsroom Portal:** High-contrast dark dashboard with interactive timeline, topic drawer, and source filtering.
-- **Live Breaking News Ticker:** Cycles through active top headlines in real time with publisher badges.
-- **Top Sections:** Categorized story sections (*National*, *Politics*, *Business & Economy*, *World Affairs*, *Featured*) with live story counts.
-- **Interactive Cluster Drawer:** Slides out on story click to view every publisher's angle, summary, publish timestamp, and direct verified external article links.
-- **1-Click Guest Access & Auth:** Quick sign-in modal with instant guest journalist access.
-- **Seamless Refresh:** On-demand background sync with live feedback on the refresh button.
+The main goal is simple: **reduce repetitive news and make it easier to see how different publishers are covering the same event.**
 
 ---
 
-## 🛠️ Technology Stack
+## ✨ Key Features
 
-| Layer | Technologies Used |
-|---|---|
-| **Frontend** | React 18, Vite, Tailwind CSS, Lucide React, date-fns |
-| **Backend** | Node.js, Express.js, MongoDB, Mongoose, CORS, Morgan, dotenv |
-| **Scraper & Engine** | Python 3.10+, `feedparser`, `pymongo`, `scikit-learn`, `requests`, `beautifulsoup4` |
-| **Database** | MongoDB (local instance on `mongodb://127.0.0.1:27017/newspulse`) |
+* **Multi-source RSS ingestion** from The Hindu, Times of India, and Dainik Jagran.
+* **Automatic article cleaning and deduplication** before processing.
+* **Topic clustering** using TF-IDF, Cosine Similarity, and Graph Connected Components.
+* **Cross-source story grouping** so related articles appear as one topic.
+* **Chronological news timeline** with category and source filtering.
+* **Live search** across headlines, sources, and topics.
+* **Cluster drawer** showing all publishers covering a particular story.
+* **Breaking news ticker** with recent headlines.
+* **On-demand ingestion** with live scraper status.
+* Responsive React-based newsroom interface.
 
 ---
 
-## 📂 Project Directory Structure
+# 💡 Additional Improvements
 
+Along with the core news aggregation and clustering functionality, I implemented additional frontend features to make NewsPulse more complete, interactive, and user-friendly.
+
+### 1. Interactive Landing Page
+
+I designed and implemented a dedicated **interactive landing page** that introduces NewsPulse before users enter the newsroom.
+
+The landing page explains:
+
+* What NewsPulse is
+* How the platform works
+* How RSS feeds and article clustering are used
+* The publishers covered by the platform
+* Key features and benefits of the platform
+
+It also includes interactive UI elements, animations, live-style news previews, and clear navigation to create a modern newsroom experience.
+
+### 2. User Authentication
+
+I added a complete authentication interface with:
+
+* **Sign Up**
+* **Login / Sign In**
+* **Guest Access**
+
+This provides users with a clear entry point into the NewsPulse platform instead of directly opening the news dashboard.
+
+### 3. Improved User Experience
+
+I integrated the landing page, authentication flow, and newsroom dashboard into a unified experience so that the application feels like a complete product rather than only a backend news-processing system.
+
+---
+
+# 🏗️ System Architecture
+
+```text
+RSS Feeds
+   │
+   ▼
+Python Scraper
+   │
+   ├── Parse & Clean
+   ├── Normalize
+   └── Deduplicate
+   │
+   ▼
+Hybrid Clustering Engine
+   │
+   ├── TF-IDF
+   ├── Cosine Similarity
+   ├── Entity/Token Overlap
+   └── Graph Connected Components
+   │
+   ▼
+MongoDB
+   │
+   ▼
+Node.js + Express API
+   │
+   ▼
+React + Vite Frontend
+   │
+   ├── Landing Page
+   ├── Authentication
+   └── Newsroom Dashboard
 ```
+
+---
+
+# 🛠️ Technology Stack
+
+| Layer             | Technologies                                          |
+| ----------------- | ----------------------------------------------------- |
+| **Frontend**      | React 18, Vite, Tailwind CSS, Lucide React, date-fns  |
+| **Backend**       | Node.js, Express.js, Mongoose, CORS, Morgan, dotenv   |
+| **Scraper**       | Python, feedparser, requests, BeautifulSoup           |
+| **Clustering**    | TF-IDF, Cosine Similarity, Graph Connected Components |
+| **Database**      | MongoDB                                               |
+| **Communication** | REST APIs, JSON                                       |
+
+---
+
+# 📰 RSS News Ingestion
+
+NewsPulse uses **RSS feeds** provided by news publishers.
+
+An RSS feed is a structured stream containing information about recently published articles, such as:
+
+* Article title
+* URL
+* Publication time
+* Description/excerpt
+* Images and other metadata when available
+
+The Python ingestion pipeline reads these feeds, cleans the data, standardizes timestamps, extracts useful metadata, and stores the articles in MongoDB.
+
+### Sources
+
+* The Hindu
+* The Times of India
+* Dainik Jagran
+
+---
+
+# 🧠 Which Approach Was Used & Why?
+
+NewsPulse uses a **Hybrid TF-IDF + Cosine Similarity approach with Graph-based Connected Components**, supported by a filtered entity/token-overlap check.
+
+The objective is to identify when different publishers are reporting about the **same underlying event**, even when their headlines use different wording.
+
+## Why TF-IDF instead of simple keyword overlap?
+
+### 1. IDF weighting
+
+Simple keyword matching treats every word equally.
+
+News articles frequently contain generic words such as:
+
+> government, court, police, minister, today
+
+These words occur across many unrelated stories and can result in false matches.
+
+**TF-IDF reduces the importance of common words and gives more weight to distinctive terms**, such as names, locations, organizations, unique events, and figures.
+
+### 2. Headline weighting
+
+The headline usually contains the most important information about the event.
+
+Therefore, NewsPulse gives the **headline 2× the weight of the description** during text processing.
+
+### 3. Bigram support
+
+The vectorizer uses:
+
+```text
+ngram_range = (1, 2)
+```
+
+This allows the system to consider both individual words and two-word combinations such as:
+
+```text
+Supreme Court
+Reserve Bank
+electoral bonds
+New Delhi
+```
+
+### 4. Deterministic and lightweight
+
+The approach does not require an external AI API or paid language model.
+
+It is:
+
+* Fast
+* Deterministic
+* Reproducible
+* Cost-effective
+* Suitable for continuous RSS processing
+
+---
+
+# 🔗 How Article Clustering Works
+
+Consider these three articles:
+
+```text
+The Hindu:
+"Supreme Court strikes down..."
+
+Times of India:
+"Apex court quashes..."
+
+Dainik Jagran:
+"Supreme Court rejects..."
+```
+
+Although the wording differs, they may contain several important terms referring to the same event.
+
+NewsPulse calculates their similarity and creates connections between sufficiently similar articles.
+
+```text
+                 Story Cluster
+                      │
+        ┌─────────────┼─────────────┐
+        │             │             │
+    The Hindu        TOI        Dainik Jagran
+     Article        Article        Article
+```
+
+The frontend can then display them as **one topic with multiple publisher perspectives**.
+
+---
+
+# 🎯 How Were the Thresholds Chosen?
+
+## Cosine Similarity Threshold — `0.22`
+
+RSS content is usually short—often just a headline and a one- or two-sentence description.
+
+Because different publishers use different wording, articles covering the same event may not produce extremely high similarity scores.
+
+| Threshold  | Observed behavior                                              |
+| ---------- | -------------------------------------------------------------- |
+| **> 0.30** | Too strict; can miss related articles with different wording   |
+| **< 0.18** | Too loose; increases unrelated clusters                        |
+| **0.22**   | Practical balance for the short RSS articles used by NewsPulse |
+
+Therefore, the primary clustering edge is created when:
+
+```text
+Cosine Similarity ≥ 0.22
+```
+
+---
+
+## 🔑 Keyword/Entity Overlap Fallback
+
+Some breaking-news headlines are extremely short.
+
+For these cases, similarity alone may not be sufficient.
+
+NewsPulse uses a fallback condition:
+
+```text
+At least 3 significant shared tokens
++
+Cosine Similarity ≥ 0.12
+```
+
+Common stopwords and generic news vocabulary are filtered out first.
+
+This helps catch stories where publishers use different wording but still share several important event-specific terms.
+
+---
+
+# 🕸️ Why Graph Connected Components?
+
+The number of news stories changes continuously, so the system does **not require a predefined number of clusters**.
+
+For example, K-Means would require choosing a value such as:
+
+```text
+K = 20
+```
+
+But there may be 15 stories at one point and 50 stories later.
+
+NewsPulse instead builds a graph:
+
+```text
+Article = Node
+Similarity above threshold = Edge
+```
+
+For example:
+
+```text
+Article A ─── Article B
+    │
+    └──────── Article C
+
+Article D ─── Article E
+
+Article F
+```
+
+The connected components become the final clusters:
+
+```text
+Cluster 1 → A, B, C
+Cluster 2 → D, E
+Cluster 3 → F
+```
+
+This allows the number of clusters to be determined **dynamically from the incoming news**.
+
+---
+
+# 📊 Clustering Parameters
+
+| Parameter             | Value                              | Purpose                                         |
+| --------------------- | ---------------------------------- | ----------------------------------------------- |
+| **Vectorizer**        | TF-IDF                             | Reduces the influence of common news vocabulary |
+| **N-grams**           | Unigrams + Bigrams                 | Captures important multi-word phrases           |
+| **Headline Weight**   | `2×`                               | Gives greater importance to the core event      |
+| **Similarity Metric** | Cosine Similarity                  | Measures similarity between article vectors     |
+| **Main Threshold**    | `≥ 0.22`                           | Connects sufficiently similar articles          |
+| **Fallback Overlap**  | `≥ 3` tokens + `≥ 0.12` similarity | Handles short/breaking headlines                |
+| **Cluster Formation** | Graph Connected Components         | Dynamically determines the number of topics     |
+
+---
+
+# 📂 Project Structure
+
+```text
 assignment/
-├── README.md                           # Main setup and project documentation
-├── DESC.md                             # Architectural overview and system specifications
 │
-├── backend/                            # Express.js REST API server
-│   ├── src/
-│   │   ├── config/db.js                # MongoDB connection handler
-│   │   ├── controllers/                # Cluster and article controllers
-│   │   ├── models/                     # Article & Cluster Mongoose models
-│   │   ├── routes/                     # API routes (/clusters, /timeline, /ingest)
-│   │   └── server.js                   # Application entry point (Port 5000)
-│   ├── package.json
-│   └── .env                            # Environment variables (PORT, MONGO_URI)
+├── README.md
 │
-├── scraper/                            # Python RSS extraction & clustering
-│   ├── config.py                       # RSS feed sources, categories & stop words
-│   ├── ingest.py                       # RSS parser, cleaner & database synchronizer
-│   ├── cluster.py                      # TF-IDF similarity clustering algorithm
-│   └── pipeline.py                     # Unified scraper execution pipeline
+├── backend/
+│   └── src/
+│       ├── config/
+│       │   └── db.js
+│       ├── controllers/
+│       ├── models/
+│       ├── routes/
+│       └── server.js
 │
-└── frontend/                           # React + Vite application
+├── scraper/
+│   ├── config.py
+│   ├── ingest.py
+│   ├── cluster.py
+│   └── pipeline.py
+│
+└── frontend/
     ├── public/
-    │   └── logos/                      # Official PNG logos (Hindu, TOI, Jagran)
-    ├── site_logo/                      # Original brand assets
-    ├── src/
-    │   ├── components/
-    │   │   ├── LandingPage.jsx         # Public landing page with showcase mockups
-    │   │   ├── Header.jsx              # Navbar with Live Breaking Ticker & auth profile
-    │   │   ├── TopSections.jsx         # Top categories grid with live story counters
-    │   │   ├── SourceFilter.jsx        # Publisher filter pills with logos & search
-    │   │   ├── TimelineView.jsx        # Chronological timeline view with hour markers
-    │   │   ├── ClusterDrawer.jsx       # Deep-dive drawer for grouped articles & links
-    │   │   └── AuthModal.jsx           # Sign in, registration & guest access dialog
-    │   ├── App.jsx                     # Root application state & portal routing
-    │   ├── index.css                   # Global dark theme styles & typography
-    │   └── main.jsx                    # React DOM root
-    ├── index.html
-    └── package.json
+    │   └── logos/
+    └── src/
+        ├── components/
+        │   ├── LandingPage.jsx
+        │   ├── Header.jsx
+        │   ├── TopSections.jsx
+        │   ├── SourceFilter.jsx
+        │   ├── TimelineView.jsx
+        │   ├── ClusterDrawer.jsx
+        │   └── AuthModal.jsx
+        ├── App.jsx
+        ├── index.css
+        └── main.jsx
 ```
 
 ---
 
-## 🚀 Step-by-Step Setup & Running Guide
+# 📡 REST API
 
-### Prerequisites
-Make sure you have the following installed on your machine:
-- **Node.js** (v18.0.0 or higher) — [Download Node.js](https://nodejs.org/)
-- **Python** (v3.10 or higher) — [Download Python](https://www.python.org/)
-- **MongoDB Community Server** (running locally) — [Download MongoDB](https://www.mongodb.com/try/download/community)
+| Method | Endpoint                | Purpose                  |
+| ------ | ----------------------- | ------------------------ |
+| `GET`  | `/`                     | API information          |
+| `GET`  | `/health`               | Server health check      |
+| `GET`  | `/clusters`             | Fetch story clusters     |
+| `GET`  | `/clusters/:id`         | Fetch cluster details    |
+| `GET`  | `/timeline`             | Fetch timeline data      |
+| `POST` | `/ingest/trigger`       | Start an ingestion job   |
+| `GET`  | `/ingest/status/:jobId` | Check ingestion progress |
 
 ---
 
-### Step 1: Start MongoDB
-Ensure your local MongoDB daemon is active.
-```bash
-# Windows (if running as a service, it starts automatically)
-net start MongoDB
+# 🚀 Running Locally
 
-# Or start manually via terminal:
-mongod --dbpath "C:\data\db"
+## Prerequisites
+
+* Node.js 18+
+* Python 3.10+
+* MongoDB
+* Python packages: `feedparser`, `pymongo`, `scikit-learn`, `requests`, `beautifulsoup4`
+
+## 1. Start MongoDB
+
+Make sure MongoDB is running locally:
+
+```text
+mongodb://127.0.0.1:27017/newspulse
 ```
 
----
+## 2. Run the scraper
 
-### Step 2: Install Scraper Dependencies & Run Ingestion
-Open a terminal and navigate to the `scraper` folder:
 ```bash
 cd assignment/scraper
 
-# Install required Python packages:
 pip install feedparser pymongo scikit-learn requests beautifulsoup4
 
-# Run the ingestion pipeline:
 python pipeline.py
 ```
-> *This will fetch the latest RSS feeds from The Hindu, Times of India, and Dainik Jagran, cluster related stories, and populate MongoDB.*
 
----
+## 3. Start the backend
 
-### Step 3: Start the Backend REST API Server
-Open a second terminal and navigate to the `backend` folder:
 ```bash
 cd assignment/backend
 
-# Install dependencies:
 npm install
-
-# Start the server in development mode:
 npm run dev
 ```
-> *Backend server will run at **`http://localhost:5000`**.*
 
----
+Backend:
 
-### Step 4: Start the Frontend React Application
-Open a third terminal and navigate to the `frontend` folder:
+```text
+http://localhost:5000
+```
+
+## 4. Start the frontend
+
 ```bash
 cd assignment/frontend
 
-# Install dependencies:
 npm install
-
-# Start the Vite development server:
 npm run dev
 ```
-> *Frontend dashboard will run at **`http://localhost:3000`**.*
+
+Frontend:
+
+```text
+http://localhost:3000
+```
 
 ---
 
-## 📡 REST API Reference
+# 🔄 End-to-End Flow
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/` | API info and available routes |
-| `GET` | `/health` | Server health check and uptime |
-| `GET` | `/clusters` | Fetch grouped story clusters (supports `source`, `limit`, `page`) |
-| `GET` | `/clusters/:id` | Fetch full cluster details with all grouped articles |
-| `GET` | `/timeline` | Fetch formatted timeline items for the dashboard |
-| `POST` | `/ingest/trigger` | Trigger Python scraper run in the background |
-| `GET` | `/ingest/status/:jobId` | Check the progress of an ingestion job |
+```text
+Publisher RSS Feeds
+        ↓
+Python RSS Parser
+        ↓
+Clean & Normalize Articles
+        ↓
+Remove Duplicates
+        ↓
+TF-IDF + Bigrams
+        ↓
+Cosine Similarity
+        ↓
+Token/Entity Fallback
+        ↓
+Similarity Graph
+        ↓
+Connected Components
+        ↓
+MongoDB
+        ↓
+Express REST API
+        ↓
+React NewsPulse
+        ↓
+Landing Page / Login / Signup / Newsroom
+```
 
 ---
 
-## 📝 License
-This project is built for assignment and demonstration purposes.
+## 🎯 Project Goal
+
+NewsPulse is designed to make news consumption **less repetitive and easier to understand** by bringing multiple publishers together and organizing their coverage around actual story topics.
+
+Instead of simply showing a list of articles, the platform focuses on:
+
+**What stories are being reported, and how are different publishers covering them?**
