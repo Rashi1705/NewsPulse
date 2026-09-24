@@ -99,7 +99,7 @@ React + Vite Frontend
 | ----------------- | ----------------------------------------------------- |
 | **Frontend**      | React 18, Vite, Tailwind CSS, Lucide React, date-fns  |
 | **Backend**       | Node.js, Express.js, Mongoose, CORS, Morgan, dotenv   |
-| **Scraper**       | Python, feedparser, requests, BeautifulSoup           |
+| **Scraper**       | Python, feedparser, request         |
 | **Clustering**    | TF-IDF, Cosine Similarity, Graph Connected Components |
 | **Database**      | MongoDB                                               |
 | **Communication** | REST APIs, JSON                                       |
